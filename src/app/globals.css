@@ -2,26 +2,30 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+
+
+body{
+  background-color: #121212 ;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+::-webkit-scrollbar{
+  background-color: black;
+  width: 2px;
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+::-webkit-scrollbar-thumb{
+  border-radius: 10px;
+  @apply bg-green-500;
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+.react-calendar {
+  background-color: #1D1D1D !important;
+  color: white;
+  border-radius: 0.5rem;
+  border: 0 !important;
+  @apply p-4 rounded-lg shadow-md;
+}
+.react-calendar__tile--active {
+  background-color: #C0FF73 !important;
+  color: black !important;
 }
