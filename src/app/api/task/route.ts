@@ -6,6 +6,8 @@ export async function POST(request: Request) {
     const title = form.get('title')?.toString();
     const description = form.get('description')?.toString();
     const frequence = form.get('frequence')?.toString();
+    const phone = form.get('phone')?.toString();
+    const email = form.get('email')?.toString();
 
     if (!title || !description) {
         return NextResponse.json({ error: 'Title and description are required' }, { status: 400 });
@@ -14,8 +16,8 @@ export async function POST(request: Request) {
     try {
         // Insert the data into the MySQL table
         const [result] = await db.execute(
-            'INSERT INTO tasks (title, description, frequence) VALUES (?, ?, ?)',
-            [title, description, frequence]
+            'INSERT INTO tasks (title, description, frequence, phone,email) VALUES (?, ?, ?)',
+            [title, description, frequence, phone, email]
         );
 
         return NextResponse.json({
@@ -24,7 +26,6 @@ export async function POST(request: Request) {
             taskId: result.insertId, // Return the inserted task ID
         });
     } catch (error) {
-        console.error('Database insertion error:', error);
         return NextResponse.json({ error: 'Failed to create task' }, { status: 500 });
     }
 }

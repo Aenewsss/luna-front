@@ -2,21 +2,45 @@
 import Image from "next/image";
 import { useState } from "react";
 import Modal from "./modal";
-import taskService from "@/services/task.service";
+import { ref, set } from "firebase/database"
+import { auth, database } from "@/app/config/firebase";
+import { v4 as uuidv4 } from 'uuid';
 
 export default function Header() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [phone, setPhone] = useState('');
 
   async function handleSubmit(e: any) {
     e.preventDefault()
 
-    const form = new FormData()
+    const title = e.currentTarget.title.value
+    const description = e.currentTarget.description.value
+    const frequence = e.currentTarget.frequence.value
+    const phone = e.currentTarget.phone.value
 
-    form.append('title', e.currentTarget.title.value)
-    form.append('description', e.currentTarget.description.value)
-    form.append('frequence', e.currentTarget.frequence.value)
+    const currentUser = auth.currentUser
 
-    await taskService.register(form)
+    const dbRef = ref(database, `tasks/${uuidv4()}`)
+
+    set(dbRef, {
+      title, description, frequence, phone, email: currentUser!.email
+    })
+      .then(res => alert('Tarefa criada'))
+      .catch(e => alert(`Erro ao criar tarefa: ${e.message}`))
+
+  }
+
+  function formatPhone(e: any) {
+    let { value } = e.target
+
+    value = value.replace(/\D/g, '');
+
+    if (value.length == 12) return
+
+    if (value.length > 2) value = `(${value.slice(0, 2)}) ${value.slice(2)}`;
+    if (value.length > 9) value = `${value.slice(0, 10)}-${value.slice(10)}`;
+
+    setPhone(value)
   }
 
   return (
@@ -44,8 +68,15 @@ export default function Header() {
                 <option defaultChecked value="everyday">Todo dia</option>
                 <option value="every_hour">Toda hora</option>
                 <option value="every_30">A cada 30 minutos</option>
-                <option value="every_15">A cada 15 minutos</option>
+                <option value="every_20">A cada 20 minutos</option>
+                <option value="every_10">A cada 10 minutos</option>
+                <option value="every_5">A cada 5 minutos</option>
+                <option value="every_1">A cada 1 minuto (usar somente em teste)</option>
               </select>
+            </div>
+            <div className="flex flex-col gap-2">
+              <label htmlFor="">WhatsApp</label>
+              <input value={phone} onChange={formatPhone} placeholder="Insira seu número do WhatsApp" required name="phone" className="rounded-md bg-gray-700 p-2" type="text" />
             </div>
           </div>
 

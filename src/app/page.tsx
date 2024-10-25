@@ -12,7 +12,7 @@ export default function Home() {
         <Sidebar />
         <div className="flex-1">
           <Header />
-          <div className="flex gap-6 mt-6">
+          <div className="flex gap-6 mt-6 flex-wrap">
             <TaskSummary title="Tarefas Futuras" value={30} color="yellow-400" icon="to-do" />
             <TaskSummary title="Tarefas Resolvidas" value={412} color="green-400" icon="done" />
             <TaskSummary title="Tarefas Canceladas" value={18} color="red-400" icon="canceled" />
