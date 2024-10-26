@@ -4,6 +4,7 @@ import Header from "@/components/header";
 import Sidebar from "@/components/sidebar";
 import TaskList from "@/components/taskList";
 import TaskSummary from "@/components/taskSummary";
+import { ToastContainer } from "react-toastify";
 
 export default function Home() {
   return (
@@ -25,18 +26,19 @@ export default function Home() {
       </div>
 
       <div
-        className={`absolute bg-gradient-to-b from-green-400 to-[#1BAFA9] p-12 rounded-full shadow-xl top-0 left-0`}
+        className={`absolute bg-gradient-to-b from-green-400 to-[#1BAFA9] p-12 rounded-full shadow-xl top-0 left-0 pointer-events-none`}
         style={{
           filter: 'blur(100px)',
         }}
       ></div>
 
       <div
-        className={`absolute bg-[#AF621B] p-8 rounded-t-full shadow-xl bottom-20 left-10 z-0`}
+        className={`absolute bg-[#AF621B] p-8 rounded-t-full shadow-xl bottom-20 left-10 z-0 pointer-events-none`}
         style={{
           filter: 'blur(80px)',
         }}
       ></div>
+      <ToastContainer />
 
       <Footer />
     </div>

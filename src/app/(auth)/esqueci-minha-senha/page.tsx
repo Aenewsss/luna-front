@@ -4,6 +4,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { sendPasswordResetEmail } from "firebase/auth"
 import { auth } from "@/app/config/firebase"
+import { Bounce, toast, ToastContainer } from "react-toastify"
 
 export default function Page() {
 
@@ -20,11 +21,30 @@ export default function Page() {
                 : process.env.NEXT_PUBLIC_FORGOT_PASSWORD_LINK as string
         })
             .then(res => {
-                console.log(res)
-                // router.push('/')
+                toast.info('Senha enviada para o email!', {
+                    position: "top-right",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "light",
+                    transition: Bounce,
+                })
             })
-            .catch(e => {
-                alert(`Erro ao tentar entrar: ${e.message}`)
+            .catch(_ => {
+                toast.error('Erro ao tentar recuperar senha!', {
+                    position: "top-right",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "light",
+                    transition: Bounce,
+                })
             })
     }
 
@@ -40,6 +60,7 @@ export default function Page() {
                 <button className="bg-primary p-2 text-black rounded-md transition-all hover:scale-105">Enviar</button>
                 <Link href="/login" className="underline text-primary mb-2 text-sm">Entrar</Link>
             </form>
+            <ToastContainer />
         </main>
     )
 }

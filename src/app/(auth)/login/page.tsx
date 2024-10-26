@@ -4,6 +4,7 @@ import { signInWithEmailAndPassword } from "firebase/auth"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { Bounce, toast, ToastContainer } from "react-toastify"
 
 export default function Page() {
 
@@ -17,11 +18,23 @@ export default function Page() {
 
         signInWithEmailAndPassword(auth, email, password)
             .then(res => {
-                console.log(res)
+                // @ts-ignore
+                document.cookie = `auth-token=${res.user.accessToken}`
+
                 router.push('/')
             })
-            .catch(e => {
-                alert(`Erro ao tentar entrar: ${e.message}`)
+            .catch(_ => {
+                toast.error('Erro ao tentar entrar!', {
+                    position: "top-right",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "light",
+                    transition: Bounce,
+                })
             })
     }
 
@@ -46,6 +59,8 @@ export default function Page() {
                     para criar
                 </Link>
             </form>
+            <ToastContainer />
+
         </main>
     )
 }

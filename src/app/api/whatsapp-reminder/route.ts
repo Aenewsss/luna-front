@@ -35,7 +35,8 @@ export async function POST(request: Request) {
                 })
             }
         )).json()
-        console.log(result)
+        return NextResponse.json({ message:'Message sent' }, { status: 200 });
+
     } catch (error) {
         return NextResponse.json({ error: 'Failed to create task' }, { status: 500 });
     }

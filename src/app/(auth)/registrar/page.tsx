@@ -1,13 +1,31 @@
 'use client'
-import { auth } from "@/app/config/firebase"
+import { auth, database } from "@/app/config/firebase"
 import { createUserWithEmailAndPassword } from "firebase/auth"
+import { ref, set } from "firebase/database"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { useState } from "react"
+import { Bounce, toast, ToastContainer } from "react-toastify"
 
 export default function Page() {
 
     const router = useRouter()
+
+    const [phone, setPhone] = useState('');
+
+    function formatPhone(e: any) {
+        let { value } = e.target
+
+        value = value.replace(/\D/g, '');
+
+        if (value.length == 12) return
+
+        if (value.length > 2) value = `(${value.slice(0, 2)}) ${value.slice(2)}`;
+        if (value.length > 9) value = `${value.slice(0, 10)}-${value.slice(10)}`;
+
+        setPhone(value)
+    }
 
     function handleSubmit(e: any) {
         e.preventDefault()
@@ -19,17 +37,31 @@ export default function Page() {
 
         createUserWithEmailAndPassword(auth, email, password)
             .then(res => {
+                const dbRef = ref(database, `users/${res.user.uid}`)
+                set(dbRef, {
+                    phone: formatPhoneToDb(phone)
+                })
                 // @ts-ignore
-                const jwt = res.user.accessToken
-
-                document.cookie = ''
-
+                document.cookie = `auth-token=${res.user.accessToken}`
                 router.push('/')
             })
-            .catch(e => {
-                console.log(e)
-                alert(`Erro ao tentar entrar: ${e.message}`)
+            .catch(_ => {
+                toast.error('Erro ao tentar registrar!', {
+                    position: "top-right",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "light",
+                    transition: Bounce,
+                })
             })
+    }
+
+    function formatPhoneToDb(phone: string) {
+        return phone.replaceAll(' ', '').replaceAll('(', '').replaceAll(')', '').replaceAll('-', '')
     }
 
     return (
@@ -39,15 +71,19 @@ export default function Page() {
             <form onSubmit={handleSubmit} className="flex flex-col gap-4 min-w-96">
                 <div className="flex flex-col gap-2">
                     <label htmlFor="">Email</label>
-                    <input className="text-black p-2 rounded-md" name="email" placeholder="insira seu email" type="email" />
+                    <input className="text-black p-2 rounded-md" name="email" placeholder="Insira seu email" type="email" />
+                </div>
+                <div className="flex flex-col gap-2">
+                    <label htmlFor="">WhatsApp</label>
+                    <input onChange={formatPhone} value={phone} className="text-black p-2 rounded-md" name="phone" placeholder="Insira seu whatsapp" type="text" />
                 </div>
                 <div className="flex flex-col gap-2">
                     <label htmlFor="">Senha</label>
-                    <input className="text-black p-2 rounded-md" name="password" placeholder="insira sua senha" type="password" />
+                    <input className="text-black p-2 rounded-md" name="password" placeholder="Insira sua senha" type="password" />
                 </div>
                 <div className="flex flex-col gap-2">
                     <label htmlFor="">Repetir senha</label>
-                    <input className="text-black p-2 rounded-md" name="repeat_password" placeholder="insira sua senha" type="password" />
+                    <input className="text-black p-2 rounded-md" name="repeat_password" placeholder="repita sua senha" type="password" />
                 </div>
                 <button className="bg-primary p-2 text-black rounded-md transition-all hover:scale-105">Registrar</button>
                 <Link href="/login" className=" text-white mt-5 text-sm">
@@ -56,6 +92,7 @@ export default function Page() {
                     para entrar
                 </Link>
             </form>
+            <ToastContainer />
         </main>
     )
 }

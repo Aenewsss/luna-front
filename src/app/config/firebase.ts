@@ -3,13 +3,13 @@ import { getDatabase } from "firebase/database";
 import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyDeMNY7GbFQUXgozimil266UpTuiwK1r6o",
-    authDomain: "luna-4e044.firebaseapp.com",
-    projectId: "luna-4e044",
-    storageBucket: "luna-4e044.appspot.com",
-    messagingSenderId: "447676446506",
-    appId: "1:447676446506:web:e0115a54db90cb4f0c5053",
-    measurementId: "G-9MRKH5KXZK"
+    apiKey: process.env.NEXT_PUBLIC_apiKey,
+    authDomain: process.env.NEXT_PUBLIC_authDomain,
+    projectId: process.env.NEXT_PUBLIC_projectId,
+    storageBucket: process.env.NEXT_PUBLIC_storageBucket,
+    messagingSenderId: process.env.NEXT_PUBLIC_messagingSenderId,
+    appId: process.env.NEXT_PUBLIC_appId,
+    measurementId: process.env.NEXT_PUBLIC_measurementId,
 };
 
 const app = initializeApp(firebaseConfig);
