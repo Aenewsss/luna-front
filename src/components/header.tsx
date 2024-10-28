@@ -33,7 +33,7 @@ export default function Header() {
     const { phone } = user.val()
 
     set(dbRef, {
-      title, description, frequence, phone, time,
+      title, description, frequence, phone: '55'+phone, time,
       email: currentUser!.email, createdAt: new Date().toISOString()
     })
       .then(_ => {
