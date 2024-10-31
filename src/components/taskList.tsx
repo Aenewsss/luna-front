@@ -1,6 +1,7 @@
 'use client'
 import { auth, database } from "@/app/config/firebase";
-import { get, onValue, ref } from "firebase/database";
+import { TaskStatusEnum } from "@/enums/task-status.enum";
+import { get, onValue, ref, update } from "firebase/database";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -11,6 +12,7 @@ export default function TaskList() {
   const router = useRouter()
 
   const [tasks, setTasks] = useState([]);
+  const [user, setUser] = useState<any>();
 
   useEffect(() => {
     let unsubscribeAuth // Track auth state listener
@@ -73,6 +75,7 @@ export default function TaskList() {
 
     unsubscribeAuth = auth.onAuthStateChanged((user) => {
       if (user) {
+        setUser(user)
         listenToDatabaseChanges(user.uid);
         fetchTasks(user.uid); // Fetch tasks initially
       } else {
@@ -88,12 +91,19 @@ export default function TaskList() {
   }, []);
 
   function handleTaskDone(id: string) {
-    // const dbRef = ref(database, `tasks/${userId}`);
+    const dbRef = ref(database, `tasks/${user.uid}/${id}`);
+
+    update(dbRef, {
+      status: TaskStatusEnum.DONE
+    })
 
   }
   function handleTaskCancel(id: string) {
-    // const dbRef = ref(database, `tasks/${userId}`);
+    const dbRef = ref(database, `tasks/${user.uid}/${id}`);
 
+    update(dbRef, {
+      status: TaskStatusEnum.CANCELLED
+    })
   }
 
   return (
@@ -112,20 +122,22 @@ export default function TaskList() {
           {tasks?.map((task: any, index) => (
             <tr key={index} className="border-b border-gray-700 h-14">
               <td>{task.title}</td>
-              <td>{new Date(task.createdAt).toLocaleDateString('pt-BR')}</td>
-              <td>{new Date(task.createdAt).toLocaleTimeString('pt-BR')}</td>
+              <td>{new Date(task.date).toLocaleDateString('pt-BR')}</td>
+              <td>{new Date(task.date).toLocaleTimeString('pt-BR')}</td>
               <td>{task.repeat == 'yes' ? 'SIM' : 'NÃO'}</td>
-              <td>
+              {task.status == TaskStatusEnum.TO_DO ? < td >
                 <div className="flex gap-2 items-center">
                   {/* <button className="text-yellow-400 hover:text-yellow-300">✏️</button> */}
                   <Image onClick={_ => handleTaskDone(task._id)} className="cursor-pointer" width={16} height={16} src="/icons/done.svg" alt="check" />
                   <Image onClick={_ => handleTaskCancel(task._id)} className="cursor-pointer" width={16} height={16} src="/icons/cancel.svg" alt="cancel" />
                 </div>
               </td>
+                : <td>{task.status == TaskStatusEnum.CANCELLED ? 'Cancelada' : 'Concluída'}</td>
+              }
             </tr>
           ))}
         </tbody>
       </table>
-    </div>
+    </div >
   );
 }

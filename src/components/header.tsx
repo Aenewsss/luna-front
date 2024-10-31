@@ -23,6 +23,7 @@ export default function Header() {
     const title = e.currentTarget.title.value
     const description = e.currentTarget.description.value
     const repeat = e.currentTarget.repeat.value
+    const date = e.currentTarget.date.value
 
     if (!repeat) return toast.warning('A tarefa se repete?', {
       position: "top-right",
@@ -39,17 +40,15 @@ export default function Header() {
     const currentUser = auth.currentUser
     if (!currentUser) return
 
-    console.log(currentUser)
     const dbRef = ref(database, `tasks/${currentUser.uid}/${uuidv4()}`)
     const userRef = ref(database, `users/${currentUser.uid}`)
 
     const user = await get(userRef)
-    console.log(user.val())
     const { phone } = user.val()
 
     set(dbRef, {
       title, description, phone: 55 + phone, status: TaskStatusEnum.TO_DO, notifications,
-      email: currentUser!.email, createdAt: new Date().toISOString(), repeat
+      email: currentUser!.email, date: new Date(date).toISOString(), repeat
     })
       .then(_ => {
         setIsModalOpen(false)
@@ -86,8 +85,6 @@ export default function Header() {
     if (searchParams.get('taskModal')) setIsModalOpen(true)
   }, [searchParams]);
 
-  console.log(notifications)
-
   return (
     <div className="flex justify-between items-center">
       <button onClick={() => setIsModalOpen(true)} className="bg-primary text-black px-4 py-2 rounded-2xl flex gap-2 items-center transition-all hover:scale-105">
@@ -105,7 +102,7 @@ export default function Header() {
               <input placeholder="Adicionar título" required name="title" className="rounded-xl bg-secondary p-2" type="text" />
             </div>
             <div className="flex gap-4">
-              <input required name="title" className="rounded-xl bg-secondary p-2 flex-grow" type="datetime-local" />
+              <input required name="date" className="rounded-xl bg-secondary p-2 flex-grow" type="datetime-local" />
               <select className="rounded-xl bg-secondary p-2" name="repeat">
                 <option defaultChecked value="">Repete?</option>
                 <option value={"yes"}>Sim</option>

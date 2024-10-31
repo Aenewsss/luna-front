@@ -9,7 +9,7 @@ import TaskSummary from "@/components/taskSummary";
 import { Suspense, useEffect, useState } from "react";
 import { ToastContainer } from "react-toastify";
 import { auth, database } from "./config/firebase";
-import { get, ref } from "firebase/database";
+import { get, onValue, ref } from "firebase/database";
 import { TaskStatusEnum } from "@/enums/task-status.enum";
 
 export default function Home() {
@@ -21,6 +21,26 @@ export default function Home() {
       auth.onAuthStateChanged(user => {
         if (user) {
           const dbRef = ref(database, `tasks/${user?.uid}`)
+
+          onValue(dbRef, (snapshot) => {
+            let tasks = snapshot.val()
+            tasks = Object.entries(tasks).map(([key, value]: any) => ({ ...value, _id: key }))
+
+            const TO_DO = tasks.reduce((acc: any, curr: any) => {
+              if (curr.status == TaskStatusEnum.TO_DO) acc += 1
+              return acc
+            }, 0)
+            const DONE = tasks.reduce((acc: any, curr: any) => {
+              if (curr.status == TaskStatusEnum.DONE) acc += 1
+              return acc
+            }, 0)
+            const CANCELLED = tasks.reduce((acc: any, curr: any) => {
+              if (curr.status == TaskStatusEnum.CANCELLED) acc += 1
+              return acc
+            }, 0)
+
+            setTasksStatus({ CANCELLED, TO_DO, DONE })
+          })
 
           get(dbRef)
             .then(res => {
@@ -40,8 +60,7 @@ export default function Home() {
                 return acc
               }, 0)
 
-              setTasksStatus({CANCELLED, TO_DO, DONE})
-              
+              setTasksStatus({ CANCELLED, TO_DO, DONE })
             })
         }
       })
