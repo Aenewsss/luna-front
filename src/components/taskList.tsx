@@ -1,6 +1,6 @@
 'use client'
 import { auth, database } from "@/app/config/firebase";
-import { get, ref } from "firebase/database";
+import { get, onValue, ref } from "firebase/database";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -13,61 +13,114 @@ export default function TaskList() {
   const [tasks, setTasks] = useState([]);
 
   useEffect(() => {
-    async function getData() {
-      auth.onAuthStateChanged(user => {
-        if (user) {
-          const dbRef = ref(database, `tasks/${user?.uid}`)
+    let unsubscribeAuth // Track auth state listener
+    let unsubscribeDb: any // Track database listener
 
-          get(dbRef)
-            .then(res => {
-              let tasks = res.val()
-              tasks = Object.entries(tasks).map(([key, value]: any) => ({ ...value, _id: key }))
-              setTasks(tasks)
-            })
-            .catch(_ => toast.info('Nenhum tarefa cadastrada. Clique aqui para adicionar!', {
-              position: "top-right",
-              autoClose: 5000,
-              hideProgressBar: false,
-              closeOnClick: true,
-              pauseOnHover: true,
-              draggable: true,
-              progress: undefined,
-              theme: "light",
-              transition: Bounce,
-              onClick: () => {
-                router.push('/?taskModal=true')
-              }
-            }))
+    function listenToDatabaseChanges(userId: string) {
+      const dbRef = ref(database, `tasks/${userId}`);
+
+      // Real-time listener for changes in the database
+      unsubscribeDb = onValue(dbRef, (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          const taskList = Object.entries(data).map(([key, value]) => ({
+            ...value!,
+            _id: key,
+          }));
+          setTasks(taskList as any);
+        } else {
+          setTasks([]);
         }
-      })
-
+      });
     }
 
-    getData()
+    function fetchTasks(userId: string) {
+      const dbRef = ref(database, `tasks/${userId}`);
+
+      get(dbRef)
+        .then((res) => {
+          const data = res.val();
+          if (data) {
+            const taskList = Object.entries(data).map(([key, value]) => ({
+              ...value!,
+              _id: key,
+            }));
+            setTasks(taskList as any);
+          } else {
+            toast.info(
+              'Nenhuma tarefa cadastrada. Clique aqui para adicionar!',
+              {
+                position: 'top-right',
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: 'light',
+                transition: Bounce,
+                onClick: () => {
+                  router.push('/?taskModal=true');
+                },
+              }
+            );
+          }
+        })
+        .catch((error) => {
+          console.error('Error fetching tasks:', error);
+        });
+    }
+
+    unsubscribeAuth = auth.onAuthStateChanged((user) => {
+      if (user) {
+        listenToDatabaseChanges(user.uid);
+        fetchTasks(user.uid); // Fetch tasks initially
+      } else {
+        setTasks([]); // Clear tasks if user logs out
+      }
+    });
+
+    // Cleanup function to remove listeners on unmount
+    return () => {
+      if (unsubscribeAuth) unsubscribeAuth();
+      if (unsubscribeDb) unsubscribeDb();
+    };
   }, []);
 
+  function handleTaskDone(id: string) {
+    // const dbRef = ref(database, `tasks/${userId}`);
+
+  }
+  function handleTaskCancel(id: string) {
+    // const dbRef = ref(database, `tasks/${userId}`);
+
+  }
 
   return (
-    <div className="bg-secondary p-4 rounded-lg shadow-lg overflow-auto">
+    <div className="bg-secondary p-4 rounded-lg shadow-lg overflow-auto flex-grow">
       <table className="w-full">
         <thead>
-          <tr className="text-primary bg-[#262525] uppercase">
-            <th align="left" className="rounded-s-lg p-2">Título</th>
-            <th align="left">Descrição</th>
-            <th align="left" className="rounded-e-lg">Ações</th>
+          <tr className="text-primary bg-[#262525] uppercase shadow-lg">
+            <th align="left" className="rounded-s-xl p-2">Título</th>
+            <th align="left">Data</th>
+            <th align="left">Hora</th>
+            <th align="left">Repete</th>
+            <th align="left" className="rounded-e-xl"></th>
           </tr>
         </thead>
         <tbody>
           {tasks?.map((task: any, index) => (
-            <tr key={index} className="border-b border-gray-700">
+            <tr key={index} className="border-b border-gray-700 h-14">
               <td>{task.title}</td>
-              <td>{task.description}</td>
+              <td>{new Date(task.createdAt).toLocaleDateString('pt-BR')}</td>
+              <td>{new Date(task.createdAt).toLocaleTimeString('pt-BR')}</td>
+              <td>{task.repeat == 'yes' ? 'SIM' : 'NÃO'}</td>
               <td>
-                {/* <button className="text-yellow-400 hover:text-yellow-300">✏️</button> */}
-                <button className="cursor-not-allowed text-red-400 hover:text-red-300 ml-2 mt-2">
-                  <Image width={16} height={16} src="/icons/check-square.svg" alt="check" />
-                </button>
-                <button className="cursor-not-allowed text-red-400 hover:text-red-300 ml-2 mt-2">❌</button>
+                <div className="flex gap-2 items-center">
+                  {/* <button className="text-yellow-400 hover:text-yellow-300">✏️</button> */}
+                  <Image onClick={_ => handleTaskDone(task._id)} className="cursor-pointer" width={16} height={16} src="/icons/done.svg" alt="check" />
+                  <Image onClick={_ => handleTaskCancel(task._id)} className="cursor-pointer" width={16} height={16} src="/icons/cancel.svg" alt="cancel" />
+                </div>
               </td>
             </tr>
           ))}

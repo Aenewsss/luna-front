@@ -6,6 +6,12 @@
 
 body{
   background-color: #121212 ;
+  overflow-x: hidden;
+}
+
+::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
 }
 
 ::-webkit-scrollbar{

@@ -1,26 +1,69 @@
+'use client'
+
 import Calendar from "@/components/calendar";
 import Footer from "@/components/footer";
 import Header from "@/components/header";
 import Sidebar from "@/components/sidebar";
 import TaskList from "@/components/taskList";
 import TaskSummary from "@/components/taskSummary";
-import { Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { ToastContainer } from "react-toastify";
+import { auth, database } from "./config/firebase";
+import { get, ref } from "firebase/database";
+import { TaskStatusEnum } from "@/enums/task-status.enum";
 
 export default function Home() {
+
+  const [tasksStatus, setTasksStatus] = useState({ TO_DO: 0, DONE: 0, CANCELLED: 0 });
+
+  useEffect(() => {
+    async function getData() {
+      auth.onAuthStateChanged(user => {
+        if (user) {
+          const dbRef = ref(database, `tasks/${user?.uid}`)
+
+          get(dbRef)
+            .then(res => {
+              let tasks = res.val()
+              tasks = Object.entries(tasks).map(([key, value]: any) => ({ ...value, _id: key }))
+
+              const TO_DO = tasks.reduce((acc: any, curr: any) => {
+                if (curr.status == TaskStatusEnum.TO_DO) acc += 1
+                return acc
+              }, 0)
+              const DONE = tasks.reduce((acc: any, curr: any) => {
+                if (curr.status == TaskStatusEnum.DONE) acc += 1
+                return acc
+              }, 0)
+              const CANCELLED = tasks.reduce((acc: any, curr: any) => {
+                if (curr.status == TaskStatusEnum.CANCELLED) acc += 1
+                return acc
+              }, 0)
+
+              setTasksStatus({CANCELLED, TO_DO, DONE})
+              
+            })
+        }
+      })
+
+    }
+
+    getData()
+  }, []);
+
   return (
     <Suspense>
-      <div className="min-h-96 bg-[#262525] text-white flex flex-col m-12 rounded-3xl relative z-10 p-10 gap-10">
+      <div className="min-h-96 text-white flex flex-col m-12 rounded-3xl relative z-10 p-10 gap-10">
         <div className="flex gap-10">
           <Sidebar />
           <div className="flex-1">
             <Header />
             <div className="flex gap-6 mt-6 flex-wrap">
-              <TaskSummary title="Tarefas Futuras" value={30} color="yellow-400" icon="to-do" />
-              <TaskSummary title="Tarefas Resolvidas" value={412} color="green-400" icon="done" />
-              <TaskSummary title="Tarefas Canceladas" value={18} color="red-400" icon="canceled" />
+              <TaskSummary title="Tarefas Futuras" value={tasksStatus.TO_DO} color="yellow-400" icon="to-do" />
+              <TaskSummary title="Tarefas Resolvidas" value={tasksStatus.DONE} color="green-400" icon="done" />
+              <TaskSummary title="Tarefas Canceladas" value={tasksStatus.CANCELLED} color="red-400" icon="canceled" />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+            <div className="flex gap-6 mt-6">
               <TaskList />
               <Calendar />
             </div>
@@ -41,8 +84,6 @@ export default function Home() {
           }}
         ></div>
         <ToastContainer />
-
-        <Footer />
       </div>
     </Suspense>
 

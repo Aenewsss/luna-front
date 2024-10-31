@@ -49,15 +49,17 @@ export default function Page() {
     }
 
     return (
-        <main className="h-screen w-screen bg-secondary flex justify-center items-center text-white flex-col">
-            <Image unoptimized width={100} height={100} src="/luna.png" alt="luna logo" />
-            <h1 className="text-3xl">Recuperar senha</h1>
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4 min-w-96">
+        <main className="h-[90vh] w-screen flex justify-center items-center text-white flex-col gap-6">
+            <div className="flex gap-4 items-center">
+                <Image unoptimized width={100} height={100} src="/luna.png" alt="luna logo" />
+                <h1 className="text-[#C6FF81] font-semibold text-3xl">LUNA, SUA ASSISTENTE VIRTUAL</h1>
+            </div>
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4 min-w-96 bg-[#1D1D1D] rounded-lg p-5">
                 <div className="flex flex-col gap-2">
                     <label htmlFor="">Email</label>
-                    <input className="text-black p-2 rounded-md" name="email" placeholder="insira seu email" type="email" />
+                    <input className="text-black p-2 border-2 border-primary rounded-2xl" name="email" placeholder="luna@email.com" type="email" />
                 </div>
-                <button className="bg-primary p-2 text-black rounded-md transition-all hover:scale-105">Enviar</button>
+                <button className="bg-primary p-2 text-black rounded-2xl transition-all hover:scale-105">Enviar</button>
                 <Link href="/login" className="underline text-primary mb-2 text-sm">Entrar</Link>
             </form>
             <ToastContainer />

@@ -65,27 +65,30 @@ export default function Page() {
     }
 
     return (
-        <main className="h-screen w-screen bg-secondary flex justify-center items-center text-white flex-col">
-            <Image unoptimized width={100} height={100} src="/luna.png" alt="luna logo" />
-            <h1 className="text-3xl">Faça seu cadastro</h1>
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4 min-w-96">
+        <main className="h-[90vh] w-screen flex justify-center items-center text-white flex-col gap-6">
+            <div className="flex gap-4 items-center">
+                <Image unoptimized width={100} height={100} src="/luna.png" alt="luna logo" />
+                <h1 className="text-[#C6FF81] font-semibold text-3xl">LUNA, SUA ASSISTENTE VIRTUAL</h1>
+            </div>
+
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4 min-w-96 bg-[#1D1D1D] rounded-lg p-5">
                 <div className="flex flex-col gap-2">
                     <label htmlFor="">Email</label>
-                    <input className="text-black p-2 rounded-md" name="email" placeholder="Insira seu email" type="email" />
+                    <input className="text-black p-2 rounded-2xl border-2 border-primary" name="email" placeholder="luna@email.com" type="email" />
                 </div>
                 <div className="flex flex-col gap-2">
                     <label htmlFor="">WhatsApp</label>
-                    <input onChange={formatPhone} value={phone} className="text-black p-2 rounded-md" name="phone" placeholder="Insira seu whatsapp" type="text" />
+                    <input onChange={formatPhone} value={phone} className="text-black p-2 rounded-2xl border-2 border-primary" name="phone" placeholder="(61) 99263-4979" type="text" />
                 </div>
                 <div className="flex flex-col gap-2">
                     <label htmlFor="">Senha</label>
-                    <input className="text-black p-2 rounded-md" name="password" placeholder="Insira sua senha" type="password" />
+                    <input className="text-black p-2 rounded-2xl border-2 border-primary" name="password" placeholder="*****" type="password" />
                 </div>
                 <div className="flex flex-col gap-2">
                     <label htmlFor="">Repetir senha</label>
-                    <input className="text-black p-2 rounded-md" name="repeat_password" placeholder="repita sua senha" type="password" />
+                    <input className="text-black p-2 rounded-2xl border-2 border-primary" name="repeat_password" placeholder="*****" type="password" />
                 </div>
-                <button className="bg-primary p-2 text-black rounded-md transition-all hover:scale-105">Registrar</button>
+                <button className="bg-primary p-2 text-black rounded-2xl transition-all hover:scale-105">Registrar</button>
                 <Link href="/login" className=" text-white mt-5 text-sm">
                     Já possui uma conta? Clique
                     <span className="underline text-primary">&nbsp;aqui&nbsp;</span>
