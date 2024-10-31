@@ -48,7 +48,7 @@ export default function Header() {
     const { phone } = user.val()
 
     set(dbRef, {
-      title, description, phone, status: TaskStatusEnum.TO_DO, notifications,
+      title, description, phone: 55 + phone, status: TaskStatusEnum.TO_DO, notifications,
       email: currentUser!.email, createdAt: new Date().toISOString(), repeat
     })
       .then(_ => {
